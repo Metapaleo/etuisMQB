@@ -165,5 +165,5 @@ We used the new alignment to run Model Test in IQ-Tree 2. The Best-fit model was
 ```{bash, eval = FALSE}
 cd ${WORKINGDIR}/scripts
 
-sbatch EbvEtuisNoAustralianNewOoA_IqTree.sh
+sbatch EbvEtuis_IqTree.sh
 ```
