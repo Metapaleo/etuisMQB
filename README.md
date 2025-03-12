@@ -157,3 +157,13 @@ Before plotting the PCA, we adjusted the format replacing the spaces by tabulato
 ```{bash, eval = FALSE}
 Rscript plotClusteringSnpPca.R
 ```
+
+### Model testing and phylogenetic reconstruction
+
+We used the new alignment to run Model Test in IQ-Tree 2. The Best-fit model was GTR+F+I+G4. 
+
+```{bash, eval = FALSE}
+cd ${WORKINGDIR}/scripts
+
+sbatch EbvEtuisNoAustralianNewOoA_IqTree.sh
+```
