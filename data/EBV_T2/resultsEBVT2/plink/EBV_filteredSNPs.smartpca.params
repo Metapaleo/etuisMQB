@@ -1,0 +1,9 @@
+genotypename: EBV_filteredSNPs.bed
+snpname: EBV_filteredSNPs.ChName.bim
+indivname: EBV_filteredSNPs.fam
+evecoutname: EBV.evec
+evaloutname: EBV.eval
+numoutevec: 10
+numoutlieriter: 5
+numoutlierevec: 10
+outliersigmathresh: 6
