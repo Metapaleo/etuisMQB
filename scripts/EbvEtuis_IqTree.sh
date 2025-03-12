@@ -22,7 +22,7 @@ module load IQ-TREE/2.4.0
 cd ${WORKINGDIR}
 
 # Run phylogeny after estimating the best model
-iqtree2 -s ${WORKINGDIR}/msaEbvEtuis.fa --seqtype DNA -T 24 -m TEST -alrt 1000 -B 10000
+iqtree2 -s ${WORKINGDIR}/resultsEBVT1/msa/msaEbvEtuis.fa --seqtype DNA -T 24 -m TEST -alrt 1000 -B 10000
 
 echo "**** Job ends ****"
 date
