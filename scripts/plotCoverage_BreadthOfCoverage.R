@@ -7,13 +7,13 @@ library(cowplot)
 setwd("${WORKINGDIR}/resultsEBVT1/bamBaseCoverage")
 
 # Selected genomes to plot
-genomes <- c("1998_5_4", "KC207814", "MG298911")
+genomes <- c("1998_5_4", "KC207814", "MG298911", "LN827563")
 
 # Define regions for EBV Type 1
 regions_T1 <- data.frame(
-  Region = c("EBNA1", "EBNA2", "EBNA3A", "EBNA3B", "EBNA3C"),
-  Start = c(55189, 36098, 79950, 83065, 86083),
-  End = c(55361, 37739, 82960, 89502, 89135)
+  Region = c("EBNA2", "EBNA3A", "EBNA3B", "EBNA3C"),
+  Start = c(36098, 79950, 83065, 86083),
+  End = c(37739, 82960, 89502, 89135)
 )
 
 # Read and process selected genome files
@@ -47,15 +47,14 @@ p1 <- ggplot(df_combined_T1, aes(x = Position, y = Coverage)) +
 setwd("${WORKINGDIR}/EBV_T2/resultsEBVT2/bamBaseCoverage")
 
 # Selected genomes to plot
-genomes <- c("1998_5_4", "KC207814", "MG298911")
+genomes <- c("1998_5_4", "KC207814", "MG298911", "LN827563")
 
 # Define regions for EBV Type 2
 regions_T2 <- data.frame(
-  Region = c("EBNA1", "EBNA2", "EBNA3A", "EBNA3B", "EBNA3C"),
-  Start = c(96492, 36201, 80026, 83074, 86654),
-  End = c(98417, 37565, 82888, 86532, 89937)
+  Region = c("EBNA2", "EBNA3A", "EBNA3B", "EBNA3C"),
+  Start = c(36201, 80026, 83074, 86654),
+  End = c(37565, 82888, 86532, 89937)
 )
-
 df_combined_T2 <- bind_rows(lapply(genomes, function(strain) {
   # Read data
   df <- fread(paste0(strain, "_depth.rmdup.tsv"), header = FALSE, sep = "\t", col.names = c("Strain", "Position", "Coverage"))
@@ -91,23 +90,48 @@ breadthOfCov <- fread("EBV_Type_breadhtOfCov.tsv", header = TRUE, sep = "\t", st
 
 p3 <- ggplot(breadthOfCov, aes(x = EBV_Type, y = EBV_Type1_Reference, fill = EBV_Type)) +
   geom_boxplot(alpha = 0.7, outlier.shape = NA) +  # Semi-transparent boxplot
-  geom_point(position = position_jitter(width = 0.25, height = 0),
-             shape = 21, size = 1, color = "black", fill = "black", alpha = 0.5) +
-  labs(title = "Breadth of Coverage mapping to EBV Type 1",
-       x = "EBV Type",
-       y = "Breadth of Coverage") +
+  # All points except 1998_5_4
+  geom_point(
+    data = subset(breadthOfCov, Strain != "1998_5_4"),
+    position = position_jitter(width = 0.25, height = 0, seed = 42),  # Fixed seed
+    shape = 21, size = 1, color = "black", fill = "black", alpha = 0.5
+  ) +
+  # Define style for strain 1998_5_4
+  geom_point(
+    data = subset(breadthOfCov, Strain == "1998_5_4"),
+    position = position_jitter(width = 0.25, height = 0, seed = 42),  # Same seed
+    shape = 21, size = 1, color = "red2", fill = "red2", alpha = 1
+  ) +
+  labs(
+    title = "Breadth of Coverage mapping to EBV Type 1",
+    x = "EBV Type",
+    y = "Breadth of Coverage"
+  )  +
+  scale_fill_manual(values = c("EBV_Type1" = "#619CFF", "EBV_Type2" = "#F564E3")) +
   theme()
 
 p4 <- ggplot(breadthOfCov, aes(x = EBV_Type, y = EBV_Type2_Reference, fill = EBV_Type)) +
-  geom_boxplot(alpha = 0.7, outlier.shape = NA) +  # Semi-transparent boxplot
-  geom_point(position = position_jitter(width = 0.25, height = 0),
-             shape = 21, size = 1, color = "black", fill = "black", alpha = 0.5) +
-  labs(title = "Breadth of Coverage mapping to EBV Type 2",
-       x = "EBV Type",
-       y = "Breadth of Coverage") +
+  geom_boxplot(alpha = 0.7, outlier.shape = NA) +
+  geom_point(
+    data = subset(breadthOfCov, Strain != "1998_5_4"),
+    position = position_jitter(width = 0.25, height = 0, seed = 43),  # Fixed seed
+    shape = 21, size = 1, color = "black", fill = "black", alpha = 0.5
+  ) +
+  # Define style for strain 1998_5_4
+  geom_point(
+    data = subset(breadthOfCov, Strain == "1998_5_4"),
+    position = position_jitter(width = 0.25, height = 0, seed = 43),  # Same seed
+    shape = 21, size = 1, color = "red2", fill = "red2", alpha = 1
+  ) +
+  labs(
+    title = "Breadth of Coverage mapping to EBV Type 2",
+    x = "EBV Type",
+    y = "Breadth of Coverage"
+  ) +
+  scale_fill_manual(values = c("EBV_Type1" = "#619CFF", "EBV_Type2" = "#F564E3")) +
   theme()
 
 # Save mapping coverage for T1 and T2, as well as BoC
-pdf("EBV_CoverageMapping_BoC.pdf", height = 7, width = 11)
+pdf("EBV_CoverageMapping_Recombinant_BoC.pdf", height = 9, width = 11)
   plot_grid(p1, p3, p2, p4, labels = c("A", "B", "C", "D"), ncol = 2, rel_widths = c(1,0.6))
 dev.off()
