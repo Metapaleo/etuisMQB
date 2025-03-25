@@ -95,6 +95,38 @@ for SAMPLE in $(cat EBV_retained_phylogeny.list); do
   MAPPED=$(samtools view bams/${SAMPLE}_merged.bam | wc -l)
   awk -v r="$READS" -v m="$MAPPED" -v sample="$SAMPLE" 'BEGIN { if (r != 0) print sample "\t" m / r; else print "Error: Division by zero"}' >> Mappability_EBVT2.tsv
 done
+```
+
+Identified those reads that mapped to both references, EBV type 1 and EBV type 2.
+
+```{bash, eval = FALSE}
+# Get reads from EBV2
+cd ${WORKINGDIR}/EBV_T2/resultsEBVT2
+mkdir bams.readsMapped
+for i in $(cat EBV_retained_phylogeny.list); do 
+  samtools view bams/${i}_merged.bam | cut -f1 > bams.readsMapped/${i}.reads.txt
+done
+
+# Get reads from EBV1
+cd ${WORKINGDIR}/resultsEBVT1
+mkdir bams.readsMapped
+for i in $(cat EBV_retained_phylogeny.list); do 
+  samtools view bams/${i}_merged.bam | cut -f1 > bams.readsMapped/${i}.reads.txt
+done
+
+# Identify reads mapped to both references
+EBV1=${WORKINGDIR}/resultsNCBINoAustralian/bams.readsMapped
+EBV2=${WORKINGDIR}/EBV_T2/resultsEBVT2/bams.readsMapped
+for i in $(cat EBV_retained_phylogeny.list); do 
+  cat ${EBV1}/${i}.reads.txt ${EBV2}/${i}.reads.txt | sort | uniq -d > readsMapped2Types/${i}.reads.txt
+done
+
+# Compute mappability of the reads mapped to both references
+for SAMPLE in $(cat EBV_retained_phylogeny.list); do 
+  READS=$(zcat trimmed/${SAMPLE}*.trim.* | grep -c "^@" )
+  MAPPED=$(wc -l readsMapped2Types/${SAMPLE}.reads.txt)
+  awk -v r="$READS" -v m="$MAPPED" -v sample="$SAMPLE" 'BEGIN { if (r != 0) print sample "\t" m / r; else print "Error: Division by zero"}' >> Mappability_EBVT1_T2.tsv
+done
 
 Rscript plotMappability.R
 ```
